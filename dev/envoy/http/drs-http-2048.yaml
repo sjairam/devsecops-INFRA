@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: max-request-headers-kb-2048
+  namespace: drs                  # Replace with your namespace
+spec:
+  workloadSelector:
+    labels:
+      app: drs-webadmin           # Apply to workloads with this label
+  configPatches:
+    - applyTo: NETWORK_FILTER  # Apply to the network filter (http_connection_manager)
+      match:
+        context: SIDECAR_INBOUND  # Apply to inbound traffic
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+      patch:
+        operation: MERGE
+        value:
+          name: envoy.filters.network.http_connection_manager
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+            max_request_headers_kb: 2048       # 2 MB

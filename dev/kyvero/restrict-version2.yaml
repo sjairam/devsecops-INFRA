@@ -1,0 +1,58 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-root-user
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: check-pod-run-as-non-root
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Running as root user is restricted. Ensure the Pod runs as a non-root user."
+        anyPattern:
+          - spec:
+              securityContext:
+                runAsNonRoot: true
+          - spec:
+              securityContext:
+                runAsUser: "!0"
+          - spec:
+              securityContext:
+                "!= runAsUser": "*"
+          - spec:
+              securityContext:
+                "!= runAsNonRoot": "*"
+          - spec:
+              "!= securityContext": "*"
+    - name: check-containers-run-as-non-root
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Running as root user is restricted. Ensure all containers run as non-root users."
+        foreach:
+          - list: "spec.containers"
+            context:
+              - name: container
+                variable:
+                  value: "{{ element }}"
+            anyPattern:
+              - value:
+                  securityContext:
+                    runAsNonRoot: true
+              - value:
+                  securityContext:
+                    runAsUser: "!0"
+              - value:
+                  securityContext:
+                    "!= runAsUser": "*"
+              - value:
+                  securityContext:
+                    "!= runAsNonRoot": "*"
+              - value:
+                  "!= securityContext": "*"

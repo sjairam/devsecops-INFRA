@@ -1,0 +1,12 @@
+  loki.source.kubernetes_events "sanj" {
+    // Only watch for events in the kube-system namespace.
+    namespaces = ["kube-system"]
+    
+    forward_to = [loki.write.local.receiver]
+  }
+    
+    loki.write "local" {
+    endpoint {
+    url = env("http://localhost:3100/api/v1/push")
+    }
+  }

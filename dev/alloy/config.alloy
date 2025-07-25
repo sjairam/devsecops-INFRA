@@ -1,0 +1,28 @@
+
+logging {
+  level= "debug"
+  format = "logfmt"                 // can we json
+  write_to = [loki.process.alloy.receiver]
+}
+
+loki.process "alloy" {
+    stage.labels {
+        values = {
+            service_name = "alloy",
+        }
+    }
+    forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+    endpoint {
+        url=  "http://loki.loki.svc.cluster.local:3100/loki/api/v1/push"
+    }
+}
+
+ loki.source.kubernetes_events "kube" {
+   // Only watch for events in the kube-system namespace.
+   namespaces = ["kube-system","booklabeler","hdforms","mps","mpsadm"]
+
+   forward_to = [loki.write.local.receiver]
+ }

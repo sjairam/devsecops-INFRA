@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: solrdev-solrcloud-basic-auth
+type: kubernetes.io/basic-auth
+stringData:
+  username: k8s-oper
+  password: LondonMexico2025 # This doesn't need to be encrypted

@@ -1,0 +1,26 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: reviews-booklabeler
+  namespace: booklabeler
+spec:
+  workloadSelector:
+    labels:
+      app: booklabeler
+  configPatches:
+    # The first patch adds the lua filter to the listener/http connection manager
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND
+        listener:
+          portNumber: 15090
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+      patch:
+        operation: INSERT_BEFORE
+        value: # CM for booklabeler
+          name: envoy.filters.network.http_connection_manager
+          typed_config:
+            "@type": "envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager"
+            max_request_bytes: 2097152

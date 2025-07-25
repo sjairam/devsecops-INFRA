@@ -1,0 +1,37 @@
+apiVersion: v1
+data:
+  admin.enabled: "true"
+  application.instanceLabelKey: argocd.argoproj.io/instance
+  application.sync.impersonation.enabled: "false"
+  dex.config: "logger:\n  level: debug\n  format: json\nconnectors:\n- type: saml\n
+    \ id: okta\n  name: Okta\n  config:\n    ssoURL: https://login.harvard.edu/app/harvard_ltsdeploymentdevelopmentargocd_1/exk1vz6372ywh5El41d8/sso/saml
+    \n    # You need `caData` _OR_ `ca`, but not both.\n    caData: |\n            LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURuakNDQW9hZ0F3SUJBZ0lHQVpheEVBUkFNQTBHQ1NxR1NJYjNEUUVCQ3dVQU1JR1BNUXN3Q1FZRFZRUUdFd0pWVXpFVE1CRUcNCkExVUVDQXdLUTJGc2FXWnZjbTVwWVRFV01CUUdBMVVFQnd3TlUyRnVJRVp5WVc1amFYTmpiekVOTUFzR0ExVUVDZ3dFVDJ0MFlURVUNCk1CSUdBMVVFQ3d3TFUxTlBVSEp2ZG1sa1pYSXhFREFPQmdOVkJBTU1CMmhoY25aaGNtUXhIREFhQmdrcWhraUc5dzBCQ1FFV0RXbHUNClptOUFiMnQwWVM1amIyMHdIaGNOTWpVd05UQTRNVGd3TVRFNVdoY05NelV3TlRBNE1UZ3dNakU0V2pDQmp6RUxNQWtHQTFVRUJoTUMNClZWTXhFekFSQmdOVkJBZ01Da05oYkdsbWIzSnVhV0V4RmpBVUJnTlZCQWNNRFZOaGJpQkdjbUZ1WTJselkyOHhEVEFMQmdOVkJBb00NCkJFOXJkR0V4RkRBU0JnTlZCQXNNQzFOVFQxQnliM1pwWkdWeU1SQXdEZ1lEVlFRRERBZG9ZWEoyWVhKa01Sd3dHZ1lKS29aSWh2Y04NCkFRa0JGZzFwYm1adlFHOXJkR0V1WTI5dE1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBdWpjSFg1Q28NCnc3QWxEODFqVzlwZFR6NTNPZnpOdG13Q0RsbUhUQ3pjNkttd2RNZVZ6VXYzem9URStvTEFMRnlZMTl0blM2a1FBYngvNW5Zdk5YeFUNCloyV3dRUjlTZ2hRWURwbXhra3Z2S1NVa1J1QlVsR2QvVnZGT0FRbUp5bVF5MU9YQWZLU09OZWlpM2Z2NjVXaUFWN1k3a1J3OFY5cEwNClhBdTdLeU1aVVRjcGZWWXowaFRjZ0FXUzdLaUhheDQxRTRpbnhTWnhwWUlTaGJtTWJ2dmxNcGNnWWNKTEEvRmhHVlhaVUVzeitVd1MNCkhSS2FEcGN0UUhOUzBkWTlsaWhYcitRU1NmbkNpOVM4YlduVERkcDlWVFVUN0UybTJ0NS92aGptV2ZYcEZ5VWpTVjY0S0J3enhib0cNCmtKNU94SDFKaEFVRkFkOWRPWGVvL1YxY2U0MXpWUUlEQVFBQk1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQnVRMy9JZzJaa3BzOUINCmVjaThaMFYzdDByY25CSWlkTFRSYUJxMzJSREl4UzFCdVQ2ck9SaTluN3dQUkVlOXpQeEZKYiswSlFZYmRUVC85bk5DcmJDMVArbHkNCkdLcEthMDM5aHg4RWlBang2MEVlUC9ERlM2T2RzNEtWaVY5R3BlQkg2N3pHalJwU2ZZTWNLbHBTSkZJbENRVnRVWno5ZDVhbWVPOHgNCjliL1hFQmlnNUVYUUdkTXFibEptOUhBUzV5S0RwMHl0Z0c3VmpxcGNNMGcrVFE3VHFKb3BBVnA5UUlKMHp6RFpldHd3emh0U2psREUNClBLUXR4K0VTVG9PVkgvKzgxSTJVVEUreVcxaXRQaGZGbEtLaWZUMi9BU3FjVmkrWU9RWDJTU0Y2bmdvc0w4MzdETjhzMWdRLzBmQ1cNCkJENDlMUWgvK0tXQ244ZWdKWGovMDlHWQ0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=\n
+    \   # You need `caData` _OR_ `ca`, but not both.\n    # Path to mount the secret
+    to the dex container\n    redirectURI: https://deployment.dev.lib.harvard.edu/api/dex/callback\n
+    \   usernameAttr: login\n    emailAttr: email\n    groupsAttr: memberOf\n"
+  exec.enabled: "false"
+  server.rbac.log.enforce.enable: "false"
+  statusbadge.enabled: "false"
+  timeout.hard.reconciliation: 0s
+  timeout.reconciliation: 180s
+  url: https://deployment.dev.lib.harvard.edu
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"admin.enabled":"true","application.instanceLabelKey":"argocd.argoproj.io/instance","application.sync.impersonation.enabled":"false","exec.enabled":"false","server.rbac.log.enforce.enable":"false","statusbadge.enabled":"false","timeout.hard.reconciliation":"0s","timeout.reconciliation":"180s","url":"https://deployment.sand.lib.harvard.edu"},"kind":"ConfigMap","metadata":{"annotations":{"meta.helm.sh/release-name":"argo-cd","meta.helm.sh/release-namespace":"argocd"},"labels":{"app.kubernetes.io/component":"server","app.kubernetes.io/instance":"argo-cd","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"argocd-cm","app.kubernetes.io/part-of":"argocd","app.kubernetes.io/version":"v2.11.0","helm.sh/chart":"argo-cd-6.8.0"},"managedFields":[{"apiVersion":"v1","fieldsType":"FieldsV1","fieldsV1":{"f:data":{".":{},"f:admin.enabled":{},"f:application.instanceLabelKey":{},"f:exec.enabled":{},"f:oidc.config":{},"f:server.rbac.log.enforce.enable":{},"f:statusbadge.enabled":{},"f:timeout.hard.reconciliation":{},"f:timeout.reconciliation":{},"f:url":{}},"f:metadata":{"f:annotations":{".":{},"f:kubectl.kubernetes.io/last-applied-configuration":{},"f:meta.helm.sh/release-name":{},"f:meta.helm.sh/release-namespace":{}},"f:labels":{".":{},"f:app.kubernetes.io/component":{},"f:app.kubernetes.io/instance":{},"f:app.kubernetes.io/managed-by":{},"f:app.kubernetes.io/name":{},"f:app.kubernetes.io/part-of":{},"f:app.kubernetes.io/version":{},"f:helm.sh/chart":{}}}},"manager":"kubectl-client-side-apply","operation":"Update","time":"2025-02-13T20:34:14Z"}],"name":"argocd-cm","namespace":"argocd"}}
+    meta.helm.sh/release-name: argo-cd
+    meta.helm.sh/release-namespace: argocd
+  creationTimestamp: "2025-04-23T14:11:33Z"
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: argo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.11.0
+    helm.sh/chart: argo-cd-6.8.0
+  name: argocd-cm
+  namespace: argocd
+  resourceVersion: "13664921"
+  uid: d49e1dd9-3981-402b-bf10-36f6f2a45557

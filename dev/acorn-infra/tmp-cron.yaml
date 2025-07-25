@@ -1,0 +1,95 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: acorn-postprocessing-cronjob
+  namespace: acorn
+spec:
+  schedule: "*/30 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 120
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: acorn-postprocessing-container
+            image: artifactory.huit.harvard.edu/lts/acorn-drs-dev:latest
+            securityContext:
+              runAsUser: 55004
+            imagePullPolicy: Always
+            # envFrom:
+            # - configMapRef:
+            #      name: acorn-drs-config-file
+            env:
+              - name: MONGO_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-acorn
+                    key: mongo-password
+            # volumeMounts:                         # This is an example of the .env VM
+            # - name: batch-builder-properties
+            #   mountPath: /home/acorndrsadm/batch_builder_client/BatchBuilder-2.5.0/conf/bb.properties
+            #   subPath: batch-builder.properties
+            # - name: acorn-volume
+            #   mountPath: /home/acorndrsadm/files/
+            #   subPath: node/app/files/
+            command: ["/bin/bash", "-c", "/home/acorndrsadm/acornpostprocessing.sh"]
+          restartPolicy: OnFailure
+          # volumes:
+          #   - name: acorn-volume
+          #     persistentVolumeClaim:
+          #       claimName: acorn-pvc
+          #   - name: batch-builder-properties
+          #     configMap:
+          #       name: batch-builder-properties
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: acorn-preprocessing-cronjob
+  namespace: acorn
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 120
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: acorn-preprocessing-container
+            image: artifactory.huit.harvard.edu/lts/acorn-drs-dev:latest
+            securityContext:
+              runAsUser: 55004
+            imagePullPolicy: Always
+            envFrom:
+            - configMapRef:
+                 name: acorn-drs-config-file
+            env:
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: mongo-password
+                  name: secrets-acorn
+            volumeMounts:                         # This is an example of the .env VM
+            - name: batch-builder-properties
+              mountPath: /home/acorndrsadm/batch_builder_client/BatchBuilder-2.5.1/conf/bb.properties
+              subPath: batch-builder.properties
+            - name: acorn-volume
+              mountPath: /home/acorndrsadm/files/
+              subPath: node/app/files/
+            command: ["/bin/bash", "-c", "/home/acorndrsadm/acornpostprocessing.sh"]
+          restartPolicy: OnFailure
+          volumes:
+            - name: acorn-volume
+              persistentVolumeClaim:
+                claimName: acorn-pvc
+            - name: batch-builder-properties
+              configMap:
+                name: batch-builder-properties

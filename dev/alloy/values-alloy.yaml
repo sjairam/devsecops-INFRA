@@ -1,0 +1,26 @@
+  loki.write "default" {
+    endpoint {
+    url = "http://localhost:3100/loki/api/v1/push"
+    }
+    
+    endpoint {
+    url = "https://logs-us-central1.grafana.net/loki/api/v1/push"
+
+    // Get basic authentication based on environment variables.
+    basic_auth {
+    username = "<USERNAME>"
+    password = "<PASSWORD>"
+    }
+    }
+  }
+    
+    loki.source.file "example" {
+    // Collect logs from the default listen address.
+    targets = [
+    {__path__ = "/tmp/foo.txt", "color" = "pink"},
+    {__path__ = "/tmp/bar.txt", "color" = "blue"},
+    {__path__ = "/tmp/baz.txt", "color" = "grey"},
+    ]
+    
+    forward_to = [loki.write.default.receiver]
+  }

@@ -1,0 +1,83 @@
+import json
+import boto3
+from botocore.exceptions import ClientError
+import base64
+import hashlib
+
+# Initialize DynamoDB client
+dynamodb = boto3.resource('dynamodb')
+users_table = dynamodb.Table('user-notes')
+notes_table = dynamodb.Table('token-email-lookup')
+
+def lambda_handler(event, context):
+    # Extract Authorization header
+    auth_header = event['headers'].get('Authorization', '')
+
+    if not auth_header:
+        return {
+            'statusCode': 401,
+            'body': 'Authorization header missing'
+        }
+
+    # Basic auth expects 'Basic <base64-encoded-username:password>'
+    try:
+        auth_type, credentials = auth_header.split()
+        if auth_type != 'Basic':
+            return {'statusCode': 400, 'body': 'Unsupported authorization type'}
+
+        # Decode credentials
+        decoded_credentials = base64.b64decode(credentials).decode('utf-8')
+        username, password = decoded_credentials.split(':', 1)
+    except (ValueError, IndexError):
+        return {'statusCode': 400, 'body': 'Invalid authorization header'}
+
+    # Authenticate user
+    if not authenticate_user(username, password):
+        return {'statusCode': 403, 'body': 'Invalid credentials'}
+
+    # Retrieve notes for the authenticated user
+    try:
+        response = notes_table.query(
+            KeyConditionExpression=boto3.dynamodb.conditions.Key('username').eq(username)
+        )
+        notes = response.get('Items', [])
+    except ClientError as e:
+        return {'statusCode': 500, 'body': f"Could not retrieve notes: {e.response['Error']['Message']}"}
+
+    # Return notes in response
+    return {
+        'statusCode': 200,
+        'body': json.dumps({'notes': notes})
+    }
+
+def authenticate_user(username, password):
+    # Try to get to retrieve the auth header
+    authentication_header = headers.get('Authentication')
+
+    if not authentication_header:
+        # Log missing header and return None or similar to indicate authentication failure
+        print("Authentication header missing.")
+        return ''
+
+    # Lets assume the header format is 'Bearer <token>'
+    try:
+        auth_type, token = authentication_header.split()
+        if auth_type != 'Bearer':
+            # Log unsupported auth type and return None or similar
+            print("Unsupported authentication type.")
+            return ''
+    except ValueError:
+        # Log incorrect header format and return None or similar
+        print("Invalid authentication header format.")
+        return ''
+
+    # Validate the token by retrieving the associated email
+    user_email = get_authenticated_user_email(token)
+
+    if not user_email:
+        # Log authentication failure and return None or similar
+        print("Authentication failed. Token invalid or expired.")
+        return ''
+
+    # Return user email if authentication is successful
+    return user_email

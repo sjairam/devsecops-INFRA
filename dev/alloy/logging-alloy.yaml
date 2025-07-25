@@ -1,0 +1,26 @@
+  loki.write "default" {
+    endpoint {
+    url = "http://localhost:3100/loki/api/v1/push"
+    }
+    
+    endpoint {
+    url = "https://logs.dev.lib.harvard.edu/loki/api/v1/push"
+
+    // Get basic authentication based on environment variables.
+    basic_auth {
+    username = "<USERNAME>"
+    password = "<PASSWORD>"
+    }
+    }
+  }
+    
+    loki.source.file "example" {
+    // Collect logs from the default listen address.
+    targets = [
+    {__path__ = "/tmp/sanj1.txt", "color" = "pink"},
+    {__path__ = "/tmp/sanj2.txt", "color" = "blue"},
+    {__path__ = "/tmp/sanj3.txt", "color" = "grey"},
+    ]
+    
+    forward_to = [loki.write.default.receiver]
+  }

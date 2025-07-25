@@ -1,0 +1,46 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: lua-max-request-size-2mb
+  namespace: drs
+spec:
+  workloadSelector:
+    labels:
+      app: drs-webadmin # Apply to workloads with this label
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND  # Apply to inbound traffic
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.lua
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+            inlineCode: |
+              -- Maximum allowed request size in bytes (e.g., 2 MB)
+              local MAX_REQUEST_BYTES = 2097152
+
+              function envoy_on_request(request_handle)
+                -- Get the request body size
+                local body_size = request_handle:body():length()
+
+                -- Log the request body size
+                request_handle:logInfo("Request body size: " .. body_size .. " bytes")
+
+                -- Reject the request if it exceeds the maximum size
+                if body_size > MAX_REQUEST_BYTES then
+                  request_handle:logWarn("Request body too large: " .. body_size .. " bytes")
+                  request_handle:respond(
+                    {[":status"] = "413"},
+                    "Payload Too Large: Request body exceeds " .. MAX_REQUEST_BYTES .. " bytes"
+                  )
+                  return
+                end
+              end

@@ -1,0 +1,29 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: drs-max-request-02
+  namespace: drs-qa
+spec:
+  workloadSelector:
+    labels:
+      app: drs-webadmin
+  configPatches:
+    # The first patch adds the http filter to the listener/http connection manager
+    - applyTo: HTTP_FILTER
+    #- applyTo: LISTENER
+      match:
+        context: SIDECAR_INBOUND
+        listener:
+          portNumber: 15090
+          filterChain:
+            filter:
+              name: "envoy.filters.http.buffer"
+
+      patch:
+        operation: INSERT_BEFORE
+        #operation: MERGE
+        value:
+          name: envoy.filters.http.buffer
+          typedConfig:
+            "@type": "type.googleapis.com/envoy.extensions.filters.http.buffer.v3.Buffer"
+            max_request_bytes: 2097152

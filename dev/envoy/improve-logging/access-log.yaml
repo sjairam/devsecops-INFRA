@@ -1,0 +1,45 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: custom-access-logs-10
+  namespace: drs  # Change this to the relevant namespace
+spec:
+  workloadSelector:
+    labels:
+      app: drs-webadmin  # Change this to the relevant workload labels
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+      patch:
+        operation: MERGE
+        value:
+          access_log:
+            - name: "envoy.file_access_log"
+              typed_config:
+                "@type": "type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog"
+                path: "/dev/stdout"  # Logs to standard output; adjust path if needed
+                json_format:
+                  start_time: "%START_TIME%"
+                  method: "%REQ(:METHOD)%"
+                  path: "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%"
+                  protocol: "%PROTOCOL%"
+                  requested_server_name: "%REQUESTED_SERVER_NAME%"
+                  response_code: "%RESPONSE_CODE%"
+                  response_flags: "%RESPONSE_FLAGS%"
+                  response_code_details: "%RESPONSE_CODE_DETAILS%"
+                  connection_termination_details: "%CONNECTION_TERMINATION_DETAILS%"
+                  upstream_transport_failure_reason: "%UPSTREAM_TRANSPORT_FAILURE_REASON%"
+                  duration: "%DURATION%"
+                  request_id: "%REQ(X-REQUEST-ID)%"
+                  user_agent: "%REQ(USER-AGENT)%"
+                  x_forwarded_for: "%REQ(X-FORWARDED-FOR)%"
+                  upstream_cluster: "%UPSTREAM_CLUSTER%"
+                  downstream_remote_address: "%DOWNSTREAM_REMOTE_ADDRESS%"
+                  bytes_received: "%BYTES_RECEIVED%"
+                  bytes_sent: "%BYTES_SENT%"
+                  # Add any additional custom fields here

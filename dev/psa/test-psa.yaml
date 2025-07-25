@@ -1,0 +1,76 @@
+apiVersion: management.cattle.io/v3
+configuration:
+  defaults:
+    audit: restricted
+    audit-version: latest
+    enforce: restricted
+    enforce-version: latest
+    warn: restricted
+    warn-version: latest
+  exemptions:
+    namespaces:
+      - cattle-csp-adapter-system
+      - cattle-epinio-system
+      - cattle-externalip-system
+      - cattle-fleet-local-system
+      - cattle-fleet-system
+      - cattle-gatekeeper-system
+      - cattle-istio-system
+      - cattle-logging-system
+      - cattle-monitoring-system
+      - cattle-neuvector-system
+      - cattle-provisioning-capi-system
+      - cattle-sriov-system
+      - cattle-system
+      - cattle-ui-plugin-system
+      - cattle-windows-gmsa-system
+      - cis-operator-system
+      - ingress-nginx
+      - istio-system
+      - kube-system
+      - longhorn-system
+      - rancher-alerting-drivers
+      - tigera-operator
+    runtimeClasses: []
+    usernames: []
+description: >-
+  This is the built-in restricted Pod Security Admission Configuration Template.
+  It defines a heavily restricted policy, based on current Pod hardening best
+  practices. This policy contains namespace level exemptions for Rancher
+  components.
+kind: PodSecurityAdmissionConfigurationTemplate
+metadata:
+  creationTimestamp: '2024-09-26T22:40:52Z'
+  generation: 2
+  labels:
+    cattle.io/creator: norman
+  managedFields:
+    - apiVersion: management.cattle.io/v3
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:configuration:
+          .: {}
+          f:defaults:
+            .: {}
+            f:audit: {}
+            f:audit-version: {}
+            f:enforce: {}
+            f:enforce-version: {}
+            f:warn: {}
+            f:warn-version: {}
+          f:exemptions:
+            .: {}
+            f:namespaces: {}
+            f:runtimeClasses: {}
+            f:usernames: {}
+        f:description: {}
+        f:metadata:
+          f:labels:
+            .: {}
+            f:cattle.io/creator: {}
+      manager: rancher
+      operation: Update
+      time: '2024-09-26T22:41:53Z'
+  name: test-pod-restricted
+  resourceVersion: '6319'
+  uid: 73eaf81b-b052-44a7-b630-52e639170369
