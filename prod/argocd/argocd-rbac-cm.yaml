@@ -1,0 +1,35 @@
+apiVersion: v1
+data:
+  policy.csv: |2-
+    g, anthony_moulen@harvard.edu, role:admin
+    g, james_jain-lynch@harvard.edu, role:admin
+    g, jason_knight@harvard.edu, role:admin
+    g, maura_carbone@harvard.edu, role:admin
+    g, rei_diaz@harvard.edu, role:admin
+    g, sanjay_jairam@harvard.edu, role:admin
+    g, sharon_bayer@harvard.edu, role:admin
+    g, tom_scorpa@harvard.edu, role:admin
+    g, argocd-admins, role:admin
+  policy.default: ""
+  policy.matchMode: glob
+  scopes: '[email,groups,memberOf]'
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"policy.csv":" g, ext, role:extension\n g, ext, role:curiosity\n p, role:curiosity,applications, get, curiosity/* , allow\n p, role:curiosity, extensions, invoke, cur*, allow\n p, role:extension, applications, get, default/nrs*, allow\n p, role:extension,extensions, invoke, nrs*, allow\n p, role:hk-admin, applications, get, *, allow\n p, role:hk-admin, applications, create, *, allow\n p, role:hk-admin, applications, update, *, allow\n g, anm5742, role:admin\n g, anw822, role:admin\n g, brd833, role:admin\n g, brh066, role:admin\n g, jaj561, role:admin\n g, jak852, role:admin\n g, jic012, role:admin\n g, kaa563, role:admin\n g, mac0373, role:admin\n g, mjv162, role:admin\n g, kaa563, role:admin\n g, mac0373, role:admin\n g, mjv162, role:admin\n g, php328, role:admin\n g, rgd358, role:admin\n g, saj513, role:admin\n g, sbb741, role:admin\n g, stc813, role:admin\n g, tme900, role:admin\n g, tms424, role:admin","policy.default":"","policy.matchMode":"glob","scopes":"[groups]"},"kind":"ConfigMap","metadata":{"annotations":{"meta.helm.sh/release-name":"argo-cd","meta.helm.sh/release-namespace":"argocd"},"labels":{"app.kubernetes.io/component":"server","app.kubernetes.io/instance":"argo-cd","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"argocd-rbac-cm","app.kubernetes.io/part-of":"argocd","app.kubernetes.io/version":"v2.11.0","helm.sh/chart":"argo-cd-6.8.0"},"managedFields":[{"apiVersion":"v1","fieldsType":"FieldsV1","fieldsV1":{"f:data":{".":{},"f:policy.default":{},"f:policy.matchMode":{},"f:scopes":{}},"f:metadata":{"f:annotations":{".":{},"f:meta.helm.sh/release-name":{},"f:meta.helm.sh/release-namespace":{}},"f:labels":{".":{},"f:app.kubernetes.io/component":{},"f:app.kubernetes.io/instance":{},"f:app.kubernetes.io/managed-by":{},"f:app.kubernetes.io/name":{},"f:app.kubernetes.io/part-of":{}}}},"manager":"terraform-provider-helm_v2.14.0_x5","operation":"Update","time":"2024-06-26T17:22:49Z"},{"apiVersion":"v1","fieldsType":"FieldsV1","fieldsV1":{"f:data":{"f:policy.csv":{}},"f:metadata":{"f:annotations":{"f:kubectl.kubernetes.io/last-applied-configuration":{}},"f:labels":{"f:app.kubernetes.io/version":{},"f:helm.sh/chart":{}}}},"manager":"kubectl-client-side-apply","operation":"Update","time":"2024-09-30T23:18:13Z"}],"name":"argocd-rbac-cm","namespace":"argocd"}}
+    meta.helm.sh/release-name: argo-cd
+    meta.helm.sh/release-namespace: argocd
+  creationTimestamp: "2025-04-23T14:11:33Z"
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/instance: argo-cd
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/version: v2.11.0
+    helm.sh/chart: argo-cd-6.8.0
+  name: argocd-rbac-cm
+  namespace: argocd
+  resourceVersion: "13678295"
+  uid: 5b691734-3d7d-4c72-8cdb-08d3ea8b7e4f
