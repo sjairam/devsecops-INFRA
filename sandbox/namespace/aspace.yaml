@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aspace           #NS name needs to be unique, for LTS it is JUST the stack name made lowercase (ex: curosity or nrsadm)
+  labels:
+    name: aspace
+    istio-injection: enabled      #Enable ISTIO injection for newly created                                                                                                         │

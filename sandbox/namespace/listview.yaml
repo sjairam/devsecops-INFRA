@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  # NS name needs to be unique, for LTS it is JUST the stack name made lowercase (ex: curosity or nrsadm)
+  name: listview
+  labels:
+    name: listview
+    # Enable ISTIO injection for newly created
+    istio-injection: enabled

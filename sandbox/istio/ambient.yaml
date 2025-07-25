@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istio
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    app: istio
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: istio-system
+  sources:
+    - repoURL: https://istio-release.storage.googleapis.com/charts
+      chart: base
+      targetRevision: 1.24.2
+      helm:
+        releaseName: "istio-base"
+    - repoURL: https://istio-release.storage.googleapis.com/charts
+      chart: istiod
+      targetRevision: 1.24.2
+      helm:
+        releaseName: "istiod"
+        parameters:
+          - name: profile
+            value: ambient
+    - repoURL: https://istio-release.storage.googleapis.com/charts
+      chart: cni
+      targetRevision: 1.24.2
+      helm:
+        releaseName: "istio-cni"
+        parameters:
+          - name: profile
+            value: ambient
+    - repoURL: https://istio-release.storage.googleapis.com/charts
+      chart: ztunnel
+      targetRevision: 1.24.2
+      helm:
+        releaseName: "ztunnel"
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true

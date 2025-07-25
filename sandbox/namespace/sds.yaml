@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  # NS name needs to be unique, for LTS it is JUST the stack name made lowercase (ex: curosity or nrsadm)
+  name: sds
+  labels:
+    name: sds
+    # Enable ISTIO injection for newly created
+    istio-injection: enabled

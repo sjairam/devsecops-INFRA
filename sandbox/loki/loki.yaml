@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  annotations:
+    meta.helm.sh/release-name: loki
+    meta.helm.sh/release-namespace: loki
+  creationTimestamp: "2024-07-14T23:18:17Z"
+  generation: 3
+  labels:
+    app: loki
+    app.kubernetes.io/managed-by: Helm
+    chart: loki-2.16.0
+    heritage: Helm
+    release: loki
+  name: loki
+  namespace: loki
+  resourceVersion: "205188"
+  uid: ee985649-3262-439e-8f92-a33e0db45f85
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: loki
+      release: loki
+  serviceName: loki-headless
+  template:
+    metadata:
+      annotations:
+        checksum/config: 3e3f0c0fbc4b6a82f15ea6aa4fd3c4ea10821502a4bd58f6b095357db1fbb4a0
+        kubectl.kubernetes.io/restartedAt: "2024-07-14T17:45:18-06:00"
+        prometheus.io/port: http-metrics
+        prometheus.io/scrape: "true"
+      creationTimestamp: null
+      labels:
+        app: loki
+        name: loki
+        release: loki
+    spec:
+      affinity: {}
+      containers:
+      - args:
+        - -config.file=/etc/loki/loki.yaml
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: AWS_ACCESS_KEY_ID
+              name: iam-loki-s3
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: AWS_SECRET_ACCESS_KEY
+              name: iam-loki-s3
+        image: grafana/loki:2.6.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: loki
+        ports:
+        - containerPort: 3100
+          name: http-metrics
+          protocol: TCP
+        - containerPort: 9095
+          name: grpc
+          protocol: TCP
+        - containerPort: 7946
+          name: memberlist-port
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2G
+          requests:
+            cpu: 250m
+            memory: 500M
+        securityContext:
+          readOnlyRootFilesystem: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /etc/loki
+          name: config
+        - mountPath: /data
+          name: storage
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      serviceAccount: loki
+      serviceAccountName: loki
+      terminationGracePeriodSeconds: 4800
+      volumes:
+      - emptyDir: {}
+        name: tmp
+      - name: config
+        secret:
+          defaultMode: 420
+          secretName: loki
+      - emptyDir: {}
+        name: storage
+  updateStrategy:
+    type: RollingUpdate
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: loki-944b4d9f5
+  observedGeneration: 3
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: loki-944b4d9f5
+  updatedReplicas: 1
