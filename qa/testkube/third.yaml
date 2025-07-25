@@ -1,0 +1,197 @@
+global:
+  domain: 'lib.harvard.edu'
+  # -- Run Testkube in enterprise mode (enables enterprise features)
+  enterpriseMode: true
+  # Specified licences - 18th June.
+  enterpriseLicenseKey: '9EB92D-539354-D421DE-D08F80-169120-V3'
+  mongo:
+    dsn: 'mongodb://admin:T3muj1n@mongo-qa-3.lts.harvard.edu:27017'
+    # -- Mongo database name
+    database: 'testkube'
+  # -- Integrating with AWS S3 storage
+  storage:
+    endpoint: s3.amazonaws.com
+    region: us-east-1
+    outputsBucket: lts-testkube-qa-outputs
+    secure: true
+    accessKeyId: "XXX"
+    secretAccessKey: "YYY"
+  # -- Disabling default ingresses to use Istio VirtualServices
+  ingress:
+    # -- Global toggle whether to create Ingress resources
+    enabled: false
+  # -- Dex issuer URL
+  dex:
+    issuer: https://testing-qa.lib.harvard.edu/api/idp # /api/idp is to differentiate the Dex endpoint, but you can use other path if needed
+
+# If you want to set up a default Org and Env from code
+testkube-cloud-api:
+  additionalEnvVars:
+    - name: 'DEBUG'
+      value: 'true'
+  podAnnotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  api:
+    oauth:
+      secretRef: ""
+      clientId: "testkube-enterprise"
+      clientSecret: "QWkVzs3nct6HZM5hxsPzwaZtq"
+      redirectUri: "https://testing-qa.lib.harvard.edu/api/auth/callback"
+      issuerUrl: ""
+      allowedExternalRedirectURIs: "https://testing-qa.lib.harvard.edu"
+    debug:
+      enableHttp2Logs: true
+      enableGrpcServerLogs: true
+    mongo:  # &global_mongo_config
+      dsn: 'mongodb://testkube:London2025@mongo-qa-3.lts.harvard.edu:27017'
+      # -- Mongo database name
+      database: 'testkube'
+    features:
+      disablePersonalOrgs: true
+      bootstrapOrg: "Harvard-LTS"
+      bootstrapEnv: "dev"
+      bootstrapAgentTokenSecretRef: "testkube-default-agent-token"
+    agent:
+      host: "testkube-enterprise-api"
+      port: 8089
+    tls:
+      serveHTTPS: false
+    dashboardAddress: "https://testing-qa.lib.harvard.edu"
+    apiAddress: "https://testing-qa.lib.harvard.edu/api"
+    inviteMode: email
+    email:
+      # -- Email to use for sending outgoing emails
+      fromEmail: "testkube@harvard.edu"
+      # -- Name to use for sending outgoing emails
+      fromName: "sanjay_jairam@harvard.edu"
+    smtp:
+      # -- SMTP host
+      host: "mailhub.harvard.edu"
+      # -- SMTP port
+      port: 25
+      username: "dummy"
+      password: "dummy"
+
+testkube-cloud-ui:
+  ui:
+    authStrategy: ""
+    apiServerEndpoint: "https://testing-qa.lib.harvard.edu/api"
+    wsServerEndpoint: "wss://testing-qa.lib.harvard.edu/api"
+    rootRoute: "https://testing-qa.lib.harvard.edu"
+
+mongodb:
+  enabled: false
+  ## Global MongoDB configuration for Testkube Pro - 18th June
+  #mongo: &global_mongo_config
+    #dsn: 'mongodb://testkube:London2025@mongo-qa-3.lts.harvard.edu:27017' # -- Mongo DSN connection string
+    #dsn: 'mongodb://admin:T3muj1n@mongo-qa-3.lts.harvard.edu:27017'
+    # -- Mongo DSN connection string secret ref (secret must contain key MONGO_DSN) (default is `mongo-dsn`)
+    #dsnSecretRef: ''
+
+nats:
+  config:
+    jetstream:
+      fileStore:
+        pvc:
+          storageClassName: test-qa-storage
+
+# -- Added DEX temporary config for now
+dex:
+  ingress:
+    enabled: false
+  configSecret:
+    create: false
+    createCustom: true
+    name: "testkube-enterprise-dex-config"
+  storage:
+    type: memory
+  grpc:
+    enabled: true
+  configTemplate:
+    customConfig: |
+      logger:
+        level: debug
+        format: json
+      web:
+        http: 0.0.0.0:5556
+      expiry:
+        deviceRequests: "5m"
+        signingKeys: "6h"
+        idTokens: "24h"
+        refreshTokens:
+          disableRotation: false
+          reuseInterval: "3s"
+          validIfNotUsedFor: "2160h" # 90 days
+          absoluteLifetime: "3960h" # 165 days
+      oauth2:
+        responseTypes: ["code"]
+        skipApprovalScreen: true
+        alwaysShowLoginScreen: false
+        passwordConnector: local
+      storage:
+        type: kubernetes
+        config:
+          inCluster: true
+      issuer: https://testing-qa.lib.harvard.edu/api/idp
+      staticClients:
+        - id: testkube-enterprise
+          name: 'Testkube Enterprise'
+          secret: 'QWkVzs3nct6HZM5hxsPzwaZtq'
+          redirectURIs:
+            - 'https://testing-qa.lib.harvard.edu/api/auth/callback'
+        - id: testkube-cloud-cli
+          name: 'Testkube Enterprise CLI'
+          public: true
+          redirectURIs:
+            - 'http://127.0.0.1:8090/callback'
+            - 'http://127.0.0.1:38090/callback'
+      enablePasswordDB: true
+      staticPasswords:
+        - email: admin@example.com
+          # bcrypt hash of the string "password": $(echo password | htpasswd -BinC 10 admin | cut -d: -f2)
+          hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+          username: "admin"
+          userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+
+testkube-worker-service:
+  podAnnotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+
+minio:
+  # -- Toggle whether to install MinIO
+  enabled: false
+
+sharedSecretGenerator:
+  # -- Toggle whether to enable the Shared Secret Generator Job
+  enabled: true
+
+# nats:
+#   config:
+#     cluster:
+#       # To deploy NATS as standalone (not recommended for production)
+#       enabled: false
+#     jetstream:
+#       enabled: true
+#       fileStore:
+#         pvc:
+#           # To make NATS ephimeral (not recommended for production)
+#           enabled: false
+
+# To deploy agent in the same namespace as Testkube Enterprise
+# testkube-agent:
+#   enabled: true
+#   testkube-dashboard:
+#     enabled: false
+#   mongodb:
+#     enabled: false
+#   testkube-api:
+#     cloud:
+#       url: testkube-enterprise-api:8089
+#       tls:
+#         enabled: false
+#       existingSecret:
+#         name: testkube-default-agent-token
+#         key: agent-token
+#     minio:
+#       # -- Toggle whether to install MinIO
+#       enabled: false

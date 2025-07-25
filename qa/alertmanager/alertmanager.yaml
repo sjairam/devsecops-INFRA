@@ -1,0 +1,77 @@
+global:
+  resolve_timeout: 5m
+inhibit_rules:
+  - equal:
+      - namespace
+      - alertname
+    source_matchers:
+      - severity = warning
+    target_matchers:
+      - severity = info
+  - equal:
+      - namespace
+    source_matchers:
+      - alertname = InfoInhibitor
+    target_matchers:
+      - severity = info
+  - equal:
+      - namespace
+    source_matchers:
+      - alertname = InfoInhibitor
+    target_matchers:
+      - severity = none
+
+receivers:
+  - name: 'slack01'
+    slack_configs:
+      - http_config: {}
+        send_resolved: false
+        text: '{{ template "slack.rancher.text" . }}'
+        api_url: >-
+          https://hooks.slack.com/services/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
+        channel: lts-ops-k8s notifications
+  - name: 'ops-team-pager'
+    pagerduty_configs:
+      - send_resolved: true
+        url: https://events.pagerduty.com/v2/change/enqueue
+        service_key: '304c64941199440ad042f792f01b618e'
+  - name: 'dev-team'
+    slack_configs:
+      - http_config: {}
+        send_resolved: false
+        text: '{{ template "slack.rancher.text" . }}'
+        api_url: >-
+          https://hooks.slack.com/services/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
+        channel: lts-ops-k8s notifications
+
+route:
+  receiver: 'slack01'
+  group_by:
+    - namespace
+  group_interval: 5m
+  group_wait: 30s
+  repeat_interval: 1h
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: 'ops-team-pager'
+      group_by: [namespace]
+      group_wait: 1m
+      group_interval: 1m
+      repeat_interval: 1h
+    - matchers:
+        - severity="warning"
+      receiver: 'dev-team'
+      # - matchers:
+      #     - alertname =~ "InfoInhibitor|Watchdog"
+      group_by: []
+      group_wait: 1h
+      group_interval: 1h
+      repeat_interval: 1h
+    - receiver: 'null'
+      group_by: null
+      group_wait: 5m
+      group_interval: 5m
+      repeat_interval: 4h
+templates:
+  - /etc/alertmanager/config/*.tmpl
